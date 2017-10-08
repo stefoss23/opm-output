@@ -487,17 +487,17 @@ void writeHeader(ecl_rst_file_type * rst_file,
 
 
   void writeSolution(ecl_rst_file_type* rst_file, const data::Solution& solution, bool write_double) {
+    for (const auto& elm: solution) {
+        if (elm.second.target == data::TargetType::RESTART_AUXILIARY)
+            ecl_rst_file_add_kw( rst_file , ecl_kw(elm.first, elm.second.data, write_double).get());
+    }
+
     ecl_rst_file_start_solution( rst_file );
     for (const auto& elm: solution) {
         if (elm.second.target == data::TargetType::RESTART_SOLUTION)
             ecl_rst_file_add_kw( rst_file , ecl_kw(elm.first, elm.second.data, write_double).get());
      }
-     ecl_rst_file_end_solution( rst_file );
-
-     for (const auto& elm: solution) {
-        if (elm.second.target == data::TargetType::RESTART_AUXILIARY)
-            ecl_rst_file_add_kw( rst_file , ecl_kw(elm.first, elm.second.data, write_double).get());
-     }
+     ecl_rst_file_end_solution( rst_file );     
   }
 
 
@@ -588,8 +588,8 @@ void save(const std::string& filename,
         cells.convertFromSI( units );
         writeHeader( rst_file.get() , report_step, posix_time , sim_time, ert_phase_mask, units, schedule , grid );
         writeWell( rst_file.get() , report_step, es , grid, wells);
-        writeSolution( rst_file.get() , cells , write_double );
         writeExtraData( rst_file.get() , extra_data );
+        writeSolution( rst_file.get() , cells , write_double );
     }
 }
 }
